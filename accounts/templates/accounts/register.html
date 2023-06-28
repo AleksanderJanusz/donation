@@ -1,5 +1,10 @@
-{% extends "donate/base.html" %}
+{% extends "base.html" %}
 {% load static %}
+{% block header %}
+    <header>
+        {% include "header.html" %}
+    </header>
+{% endblock %}
 {% block content %}
 
     <section class="login-page">
