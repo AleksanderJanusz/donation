@@ -2,7 +2,7 @@ from random import randint
 
 import pytest
 
-from donate.models import Category, Institution
+from donate.models import Category, Institution, Donation
 
 
 @pytest.fixture
@@ -32,3 +32,13 @@ def institutions_with_categories(institutions, categories):
         institution.categories.set(categories[:randint(0, len(categories))])
         lst.append(institution)
     return lst
+
+
+@pytest.fixture
+def ten_donations_to_five_institutions(institutions_with_categories):
+    institutions = Institution.objects.all()
+    return [Donation.objects.create(quantity=3, address=f'address{i}',
+                                    phone_number='+48 123 456 789', city=f'city{i}',
+                                    zip_code=f'01-2{i}', pick_up_date='2023-10-28',
+                                    pick_up_time='16:10:00', pick_up_comment=f'comment{i}',
+                                    institution_id=institutions[i//2].id) for i in range(0, 10)]
