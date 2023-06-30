@@ -1,7 +1,9 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views import View
+from donate.forms import DonationForm
 from donate.models import *
 
 
@@ -37,9 +39,19 @@ class LandingPage(View):
                                                      'col_pages': col_pages})
 
 
-class AddDonation(View):
+class AddDonation(LoginRequiredMixin, View):
     def get(self, request):
-        return render(request, 'donate/form.html')
+        categories = Category.objects.all()
+        institutions = Institution.objects.all().order_by('name')
+        form = DonationForm
+        return render(request, 'donate/form_try.html', {'categories': categories,
+                                                        "institutions": institutions,
+                                                        'form': form})
+
+    def post(self, request):
+        categories = request.POST.getlist('categories')
+        institutions = request.POST.getlist('organization')
+        return HttpResponse(f'categories {categories}, institutions {institutions}')
 
 
 class InstitutionPaginatorAPI(View):

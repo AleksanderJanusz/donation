@@ -1,3 +1,38 @@
+function fundations_contains_categories() {
+    const cat_check = document.querySelectorAll('#step1 .form-group--checkbox input');
+    const found_check = document.querySelectorAll('#step3 .form-group--checkbox input');
+
+    function list_of_checked_categories() {
+        let lst = [];
+        cat_check.forEach(element => {
+            if (element.checked == true) {
+                lst.push(element.value);
+            }
+        })
+        return lst;
+    }
+
+    function hide_others_foundations(lst) {
+        found_check.forEach(element => {
+            element.parentElement.parentElement.classList.remove('hide');
+            let categories = element.dataset.categories.split(',');
+            lst.forEach(num => {
+                if (!categories.includes(num)) {
+                    element.parentElement.parentElement.classList.add('hide');
+                }
+            })
+
+        })
+    }
+
+    cat_check.forEach(e => {
+        e.addEventListener('change', function (event) {
+            let lst = list_of_checked_categories();
+            hide_others_foundations(lst);
+        })
+    })
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     /**
      * HomePage - Help section
@@ -274,7 +309,9 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             // Form submit
-            this.$form.querySelector("form").addEventListener("submit", e => this.submit(e));
+            this.$form.querySelector("form").addEventListener("submit", e => {
+                this.submit(e)
+            });
         }
 
         /**
@@ -306,9 +343,9 @@ document.addEventListener("DOMContentLoaded", function () {
          * TODO: validation, send data to server
          */
         submit(e) {
-            e.preventDefault();
-            this.currentStep++;
-            this.updateForm();
+            // e.preventDefault();
+            // this.currentStep++;
+            // this.updateForm();
         }
     }
 
@@ -316,4 +353,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (form !== null) {
         new FormSteps(form);
     }
+
+    fundations_contains_categories();
 });

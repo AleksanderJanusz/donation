@@ -55,11 +55,14 @@
         <div class="form--steps-container">
             <div class="form--steps-counter">Krok <span>1</span>/5</div>
 
-            <form action="form-confirmation.html" method="post">
+            <form method="post">
+                {% csrf_token %}
                 <!-- STEP 1: class .active is switching steps -->
-                <div data-step="1" class="active">
+                <div data-step="1" class="active" id="step1">
                     <h3>Zaznacz co chcesz oddać:</h3>
+
                     {% for category in categories %}
+
                         <div class="form-group form-group--checkbox">
                             <label>
                                 <input
@@ -73,6 +76,7 @@
                                 </span>
                             </label>
                         </div>
+
                     {% endfor %}
 
                     <div class="form-group form-group--buttons">
@@ -87,7 +91,7 @@
                     <div class="form-group form-group--inline">
                         <label>
                             Liczba 60l worków:
-                            <input type="number" name="bags" step="1" min="1"/>
+                            {{ form.quantity }}
                         </label>
                     </div>
 
@@ -98,37 +102,25 @@
                 </div>
 
 
-                <!-- STEP 4 -->
-                <div data-step="3">
+                <!-- STEP 3 -->
+                <div data-step="3" id="step3">
                     <h3>Wybierz organizacje, której chcesz pomóc:</h3>
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="radio" name="organization" value="old"/>
-                            <span class="checkbox radio"></span>
-                            <span class="description">
-                                <div class="title">Fundacja “Bez domu”</div>
+                    {% for inst in institutions %}
+                        <div class="form-group form-group--checkbox">
+                            <label>
+                                <input type="radio" name="organization" value="{{ inst.id }}"
+                                       data-categories="{% for cat in inst.categories.all %}{{ cat.id }}{% if cat != inst.categories.last %},{% endif %}{% endfor %}"/>
+                                <span class="checkbox radio"></span>
+                                <span class="description">
+                                <div class="title">Fundacja “{{ inst.name }}”</div>
                                 <div class="subtitle">
-                                    Cel i misja: Pomoc dla osób nie posiadających miejsca
-                                    zamieszkania
+                                    {{ inst.description }}
                                 </div>
                             </span>
-                        </label>
-                    </div>
-
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="radio" name="organization" value="old"/>
-                            <span class="checkbox radio"></span>
-                            <span class="description">
-                              <div class="title">Fundacja “Dla dzieci"</div>
-                              <div class="subtitle">
-                                Cel i misja: Pomoc osobom znajdującym się w trudnej sytuacji
-                                życiowej.
-                              </div>
-                            </span>
-                        </label>
-                    </div>
+                            </label>
+                        </div>
+                    {% endfor %}
 
                     <div class="form-group form-group--buttons">
                         <button type="button" class="btn prev-step">Wstecz</button>
