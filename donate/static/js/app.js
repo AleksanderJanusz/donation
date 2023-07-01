@@ -375,8 +375,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     last_button.addEventListener('click', function (){
+
         let categories = [];
         let foundation = [];
+        let comment = pick_up_comment.value;
+        if (!comment){comment = 'Brak uwag'}
+
         cat_check.forEach(element => {
             if(element.checked == true){
                 categories.push(element.parentElement.lastElementChild.innerText);
@@ -402,6 +406,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         donation_foundation.innerText = 'Dla fundacji ' + foundation;
+
+
         donation_address.innerHTML = '';
         let li_address = document.createElement('li');
         li_address.innerText = address.value;
@@ -415,6 +421,20 @@ document.addEventListener("DOMContentLoaded", function () {
         donation_address.appendChild(li_city);
         donation_address.appendChild(li_zip_code);
         donation_address.appendChild(li_phone_number);
+
+
+        donation_date.innerHTML = '';
+        let li_date = document.createElement('li');
+        li_date.innerText = pick_up_date.value;
+        let li_time = document.createElement('li');
+        li_time.innerText = pick_up_time.value;
+        let li_comment = document.createElement('li');
+        li_comment.innerText = comment;
+
+        donation_date.appendChild(li_date);
+        donation_date.appendChild(li_time);
+        donation_date.appendChild(li_comment);
+
 
 
 
