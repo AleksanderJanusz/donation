@@ -355,4 +355,69 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     fundations_contains_categories();
+
+    const cat_check = document.querySelectorAll('#step1 .form-group--checkbox input');
+    const found_check = document.querySelectorAll('#step3 .form-group--checkbox input');
+    const last_button = document.querySelector('#last-step');
+    const quantity = document.querySelector('#id_quantity');
+    const address = document.querySelector('#id_address');
+    const city = document.querySelector('#id_city');
+    const zip_code = document.querySelector('#id_zip_code');
+    const phone_number = document.querySelector('#id_phone_number');
+    const pick_up_date = document.querySelector('#id_pick_up_date');
+    const pick_up_time = document.querySelector('#id_pick_up_time');
+    const pick_up_comment = document.querySelector('#id_pick_up_comment');
+    const donation_categories = document.querySelector('#donation_categories');
+    const donation_foundation = document.querySelector('#donation_foundation');
+    const donation_address = document.querySelector('#donation_address');
+    const donation_date = document.querySelector('#donation_date');
+
+
+
+    last_button.addEventListener('click', function (){
+        let categories = [];
+        let foundation = [];
+        cat_check.forEach(element => {
+            if(element.checked == true){
+                categories.push(element.parentElement.lastElementChild.innerText);
+            }
+        })
+        found_check.forEach(element => {
+            if(element.checked == true){
+                foundation.push(element.parentElement.querySelector('.title').innerText);
+            }
+        })
+
+        foundation = foundation[0].split(' ').slice(1).join(' ');
+
+        categories = categories.slice(0, categories.length-2).map(e => e+',').concat(categories.slice(categories.length-2, categories.length)); // add comas to categories
+        if (categories.length > 1){categories.splice(categories.length-1, 0, 'oraz');} // add 'oraz' before last element
+        categories = categories.join(' ');
+
+        if (quantity.value == 1){
+            donation_categories.innerText = 'Worek zawierający ' + categories;
+        }
+        else{
+            donation_categories.innerText = quantity.value + ' worki zawierające ' + categories;
+        }
+
+        donation_foundation.innerText = 'Dla fundacji ' + foundation;
+        donation_address.innerHTML = '';
+        let li_address = document.createElement('li');
+        li_address.innerText = address.value;
+        let li_city = document.createElement('li');
+        li_city.innerText = city.value;
+        let li_zip_code = document.createElement('li');
+        li_zip_code.innerText = zip_code.value;
+        let li_phone_number = document.createElement('li');
+        li_phone_number.innerText = phone_number.value;
+        donation_address.appendChild(li_address);
+        donation_address.appendChild(li_city);
+        donation_address.appendChild(li_zip_code);
+        donation_address.appendChild(li_phone_number);
+
+
+
+    })
+
 });
