@@ -43,15 +43,29 @@ class AddDonation(LoginRequiredMixin, View):
     def get(self, request):
         categories = Category.objects.all()
         institutions = Institution.objects.all().order_by('name')
-        form = DonationForm
+        form = DonationForm()
         return render(request, 'donate/form_try.html', {'categories': categories,
                                                         "institutions": institutions,
                                                         'form': form})
 
     def post(self, request):
-        categories = request.POST.getlist('categories')
+        categories_id = request.POST.getlist('categories')
+        categories = [Category.objects.get(pk=int(category)) for category in categories_id]
         institutions = request.POST.getlist('organization')
-        return HttpResponse(f'categories {categories}, institutions {institutions}')
+        form = DonationForm(request.POST)
+        if form.is_valid():
+            donation = form.save(commit=False)
+            donation.institution = Institution.objects.get(pk=int(institutions[0]))
+            donation.user = request.user
+            donation.save()
+            donation.categories.set(categories)
+            return render(request, 'donate/form-confirmation.html')
+
+        categories = Category.objects.all()
+        institutions = Institution.objects.all().order_by('name')
+        return render(request, 'donate/form_try.html', {'categories': categories,
+                                                        "institutions": institutions,
+                                                        'form': form})
 
 
 class InstitutionPaginatorAPI(View):

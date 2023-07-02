@@ -7,9 +7,10 @@ class DonationForm(forms.ModelForm):
     quantity = forms.IntegerField(min_value=1)
     pick_up_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
     pick_up_time = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}))
-    pick_up_comment = forms.CharField(widget=forms.Textarea(attrs={"rows": 5}))
+    # pick_up_comment = forms.CharField(widget=forms.Textarea(attrs={"rows": 5}))
 
     class Meta:
         model = Donation
+        widgets = [{'pick_up_comment': forms.Textarea(attrs={'rows': 5})}]
         fields = ['quantity', 'address', 'phone_number', 'city', 'zip_code', 'pick_up_date', 'pick_up_time',
                   'pick_up_comment']
