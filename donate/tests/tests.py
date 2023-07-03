@@ -2,7 +2,9 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 import math
-from donate.models import Institution, Donation
+
+from donate.forms import DonationForm
+from donate.models import Institution, Donation, Category
 
 
 @pytest.mark.django_db
@@ -37,7 +39,7 @@ def test_index_view_pages_and_institutions(ten_donations_to_five_institutions, i
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("test_type", [0, 1, 2])
-def test_institutions_api_type0(institutions_with_categories, test_type):
+def test_institutions_api(institutions_with_categories, test_type):
     client = Client()
     url = reverse('inst_api')
     response = client.get(url + f'?page=1&type={test_type}')
@@ -48,3 +50,107 @@ def test_institutions_api_type0(institutions_with_categories, test_type):
     assert response.json()[0]['name'] == first_inst.name
     assert response.json()[0]['description'] == first_inst.description
     assert len(response.json()[0]['categories'].split()) == len(first_inst.categories.all())
+
+
+@pytest.mark.django_db
+def test_donation_get_logged_out(institutions_with_categories):
+    client = Client()
+    url = reverse('add_donation')
+    response = client.get(url)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('login'))
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("context, result", [
+    ('categories', Category.objects.all()),
+    ('institutions', Institution.objects.all().order_by('name'))])
+def test_donation_get_part1(institutions_with_categories, user, context, result):
+    client = Client()
+    client.force_login(user)
+    url = reverse('add_donation')
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert len(response.context[context]) == len(result)
+
+
+@pytest.mark.django_db
+def test_donation_get_part2(institutions_with_categories, user):
+    client = Client()
+    client.force_login(user)
+    url = reverse('add_donation')
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert isinstance(response.context['form'], DonationForm)
+
+
+@pytest.mark.django_db
+def test_donation_post_all_works(institutions_with_categories, user):
+    client = Client()
+    client.force_login(user)
+
+    url = reverse('add_donation')
+    data = {
+        'quantity': '2',
+        'city': 'city',
+        'address': 'address',
+        'phone_number': '123456789',
+        'zip_code': '12-345',
+        'pick_up_date': '2023-07-13',
+        'pick_up_time': '16:30:00',
+        'pick_up_comment': 'comment',
+        'organization': Institution.objects.first().id
+    }
+    response = client.post(url, data)
+
+    assert response.status_code == 200
+    assert len(Donation.objects.all()) == 1
+
+
+@pytest.mark.django_db
+def test_donation_post_all_bad_phone_number(institutions_with_categories, user):
+    client = Client()
+    client.force_login(user)
+
+    url = reverse('add_donation')
+    data = {
+        'quantity': '2',
+        'city': 'city',
+        'address': 'address',
+        'phone_number': '12345678',
+        'zip_code': '12-345',
+        'pick_up_date': '2023-07-13',
+        'pick_up_time': '16:30:00',
+        'pick_up_comment': 'comment',
+        'organization': Institution.objects.first().id
+    }
+    response = client.post(url, data)
+
+    assert response.status_code == 200
+    assert len(Donation.objects.all()) == 0
+
+
+@pytest.mark.django_db
+def test_donation_post_all_bad_zip_code(institutions_with_categories, user):
+    client = Client()
+    client.force_login(user)
+
+    url = reverse('add_donation')
+    data = {
+        'quantity': '2',
+        'city': 'city',
+        'address': 'address',
+        'phone_number': '12345678',
+        'zip_code': '12-3456',
+        'pick_up_date': '2023-07-13',
+        'pick_up_time': '16:30:00',
+        'pick_up_comment': 'comment',
+        'organization': Institution.objects.first().id
+    }
+    response = client.post(url, data)
+
+    assert response.status_code == 200
+    assert len(Donation.objects.all()) == 0
+

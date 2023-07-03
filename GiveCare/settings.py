@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'donate',
     'accounts',
+    "phonenumber_field",
 ]
 
 MIDDLEWARE = [

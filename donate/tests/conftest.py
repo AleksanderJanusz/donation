@@ -1,6 +1,7 @@
 from random import randint
 
 import pytest
+from django.contrib.auth.models import User
 
 from donate.models import Category, Institution, Donation
 
@@ -41,4 +42,9 @@ def ten_donations_to_five_institutions(institutions_with_categories):
                                     phone_number='+48 123 456 789', city=f'city{i}',
                                     zip_code=f'01-2{i}', pick_up_date='2023-10-28',
                                     pick_up_time='16:10:00', pick_up_comment=f'comment{i}',
-                                    institution_id=institutions[i//2].id) for i in range(0, 10)]
+                                    institution_id=institutions[i // 2].id) for i in range(0, 10)]
+
+
+@pytest.fixture
+def user():
+    return User.objects.create_user(username='user', password='password')

@@ -14,17 +14,17 @@ class LandingPage(View):
         total_quantities = sum([donation.quantity for donation in Donation.objects.all()])
         total_supported_institutions = Donation.objects.distinct('institution_id').count()
 
-        foundations = Institution.objects.filter(type=0)
+        foundations = Institution.objects.filter(type=0).order_by('name')
         paginator_found = Paginator(foundations, institution_per_page)
         foundations_page = paginator_found.get_page(1)
         found_pages = [page for page in paginator_found.page_range]
 
-        organizations = Institution.objects.filter(type=1)
+        organizations = Institution.objects.filter(type=1).order_by('name')
         paginator_org = Paginator(organizations, institution_per_page)
         organizations_page = paginator_org.get_page(1)
         org_pages = [page for page in paginator_org.page_range]
 
-        collections = Institution.objects.filter(type=2)
+        collections = Institution.objects.filter(type=2).order_by('name')
         paginator_col = Paginator(collections, institution_per_page)
         collections_page = paginator_col.get_page(1)
         col_pages = [page for page in paginator_col.page_range]
@@ -63,9 +63,9 @@ class AddDonation(LoginRequiredMixin, View):
 
         categories = Category.objects.all()
         institutions = Institution.objects.all().order_by('name')
-        return render(request, 'donate/form_try.html', {'categories': categories,
-                                                        "institutions": institutions,
-                                                        'form': form})
+        return render(request, 'donate/form_try.html/', {'categories': categories,
+                                                         "institutions": institutions,
+                                                         'form': form})
 
 
 class InstitutionPaginatorAPI(View):

@@ -51,7 +51,10 @@
                 <p data-step="4">Podaj adres oraz termin odbioru rzeczy.</p>
             </div>
         </div>
-
+        <div id="errors_strong">
+            <strong style="color: darkred; font-size: 24px">{{ form.phone_number.errors }}</strong>
+            <strong style="color: darkred; font-size: 24px">{{ form.non_field_errors }}</strong>
+        </div>
         <div class="form--steps-container">
             <div class="form--steps-counter">Krok <span>1</span>/5</div>
 
@@ -108,7 +111,8 @@
                         <div class="form-group form-group--checkbox">
                             <label>
                                 <input type="radio" name="organization" value="{{ inst.id }}"
-                                       data-categories="{% for cat in inst.categories.all %}{{ cat.id }}{% if cat != inst.categories.last %},{% endif %}{% endfor %}"/>
+                                       data-categories="
+                                               {% for cat in inst.categories.all %}{{ cat.id }}{% if cat != inst.categories.last %},{% endif %}{% endfor %}"/>
                                 <span class="checkbox radio"></span>
                                 <span class="description">
                                 <div class="title">Fundacja “{{ inst.name }}”</div>
@@ -184,6 +188,7 @@
 
                     <div class="summary">
                         <div class="form-section">
+                            <ul id="errors"></ul>
                             <h4>Oddajesz:</h4>
                             <ul>
                                 <li>
@@ -210,6 +215,7 @@
                                 <ul id="donation_date">
                                 </ul>
                             </div>
+
                         </div>
                     </div>
 

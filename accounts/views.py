@@ -12,11 +12,14 @@ class Login(View):
         return render(request, 'accounts/login.html', {'form': form})
 
     def post(self, request):
+        url_to_go = request.GET.get('next')
         form = LoginForm(request.POST)
         if form.is_valid():
             user = form.cleaned_data['user']
             if user is not None:
                 login(request, user)
+            if url_to_go:
+                return redirect(url_to_go)
             return redirect('index')
         is_user = User.objects.filter(username=form.cleaned_data['username'])
         if not is_user:
