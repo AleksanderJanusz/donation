@@ -1,10 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from donate.forms import DonationForm
 from donate.models import *
+from django.urls import reverse
 
 
 class LandingPage(View):
@@ -81,5 +82,13 @@ class InstitutionPaginatorAPI(View):
 
 class Profil(LoginRequiredMixin, View):
     def get(self, request):
-        donation = Donation.objects.filter(user_id=request.user.id)
+        donation = Donation.objects.filter(user_id=request.user.id).order_by('is_taken', 'pick_up_date')
         return render(request, 'donate/profile.html', {'donations': donation})
+
+    def post(self, request):
+        change = request.POST.get('change')
+        donate = Donation.objects.get(pk=change)
+        donate.is_taken = not donate.is_taken
+        donate.save()
+        url = reverse('profile') + '#help'
+        return redirect(url)

@@ -18,37 +18,38 @@
         <div class="help--slides active" data-id="1">
             <ul class="help--slides-items">
                 {% for donate in donations %}
-                    <a href="#" class="donations-profile" onmouseover="this.style.color='blue'" onmouseout="this.style.color='black'">
-                        <li>
-                            <div class="col">
+                    <li>
+                        <div class="col">
+                            <a href="#" class="donations-profile" onmouseover="this.style.color='blue'"
+                               onmouseout="this.style.color='black'">
                                 <div class="title">Fundacja "{{ donate.institution.name }}"</div>
-                                <div class="subtitle">Ilość worków: {{ donate.quantity }}</div>
+                                <div class="subtitle">Ilość worków: {{ donate.quantity }},
+                                    status: {{ donate.is_taken | yesno:'zabrany, niezabrany' }}</div>
+                            </a>
+                        </div>
+
+
+                        <div class="col">
+                            <div class="title">
+                                Data: {{ donate.pick_up_date }} {{ donate.pick_up_time }}
+                            </div>
+                            <div class="subtitle">
+                                Co zostało przekazane:
+                                {% for category in donate.categories.all %}
+                                    {{ category }}{% if category != donate.categories.last %},{% endif %}
+                                {% endfor %}
                             </div>
 
-                            <div class="col">
-                                <div class="title">
-                                    Data: {{ donate.pick_up_date }} {{ donate.pick_up_time }}
-                                </div>
-                                <div class="subtitle">
-                                    Co zostało przekazane:
-                                    {% for category in donate.categories.all %}
-                                        {{ category }}{% if category != donate.categories.last %},{% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </li>
-                    </a>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <label>Zmień status na:</label>
+                            <button type=submit name="change" value="{{ donate.id }}" class="btn btn--small"
+                                    style="width: 84.45px; {% if donate.is_taken %}background-color: lightgray{% endif %}">{{ donate.is_taken | yesno:'niezabrany, zabrany' }}</button>
+                        </form>
+                    </li>
                 {% endfor %}
             </ul>
-
-            <ul class="help--slides-pagination" id="pagi1">
-                {% for page in found_pages %}
-                    <li><a href="#"
-                           class="btn btn--small btn--without-border {% if page == found_pages.0 %}active{% endif %}"
-                           data-page="{{ page }}">{{ page }}</a></li>
-                {% endfor %}
-            </ul>
-
         </div>
     </section>
 {% endblock %}
