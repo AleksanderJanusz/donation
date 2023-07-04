@@ -23,7 +23,7 @@ class AddUserForm(forms.ModelForm):
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField(widget=forms.EmailInput(attrs={'placeholder': 'Email'}), label='')
+    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Email'}), label='')
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Hasło'}), label='')
 
     def clean(self):

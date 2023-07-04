@@ -48,3 +48,11 @@ def ten_donations_to_five_institutions(institutions_with_categories):
 @pytest.fixture
 def user():
     return User.objects.create_user(username='user', password='password')
+
+
+@pytest.fixture
+def donations_with_user(ten_donations_to_five_institutions, user):
+    for donation in Donation.objects.all():
+        donation.user = User.objects.first()
+        donation.save()
+    return Donation.objects.all()

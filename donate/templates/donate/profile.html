@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% block header %}
+    <header class="header--form-page">
+        {% include "header.html" %}
+        <div class="profile-container">
+            <h1>Informacje o użytkowniku</h1>
+            <img src="{% static 'images/decoration.svg' %}" style="width: 100%">
+            <p><strong>Imię:</strong> {{ user.first_name }}</p>
+            <p><strong>Nazwisko:</strong> {{ user.last_name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+        </div>
+    </header>
+{% endblock %}
+{% block content %}
+    <section id="help" class="help">
+        <h2>Twoja pomoc</h2>
+        <div class="help--slides active" data-id="1">
+            <ul class="help--slides-items">
+                {% for donate in donations %}
+                    <a href="#" class="donations-profile" onmouseover="this.style.color='blue'" onmouseout="this.style.color='black'">
+                        <li>
+                            <div class="col">
+                                <div class="title">Fundacja "{{ donate.institution.name }}"</div>
+                                <div class="subtitle">Ilość worków: {{ donate.quantity }}</div>
+                            </div>
+
+                            <div class="col">
+                                <div class="title">
+                                    Data: {{ donate.pick_up_date }} {{ donate.pick_up_time }}
+                                </div>
+                                <div class="subtitle">
+                                    Co zostało przekazane:
+                                    {% for category in donate.categories.all %}
+                                        {{ category }}{% if category != donate.categories.last %},{% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </li>
+                    </a>
+                {% endfor %}
+            </ul>
+
+            <ul class="help--slides-pagination" id="pagi1">
+                {% for page in found_pages %}
+                    <li><a href="#"
+                           class="btn btn--small btn--without-border {% if page == found_pages.0 %}active{% endif %}"
+                           data-page="{{ page }}">{{ page }}</a></li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </section>
+{% endblock %}

@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth.models import User
 from django.test import Client
 from django.urls import reverse
 import math
@@ -154,3 +155,23 @@ def test_donation_post_all_bad_zip_code(institutions_with_categories, user):
     assert response.status_code == 200
     assert len(Donation.objects.all()) == 0
 
+
+@pytest.mark.django_db
+def test_profile_logged_out(donations_with_user):
+    client = Client()
+    url = reverse('profile')
+    response = client.get(url)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('login'))
+
+
+@pytest.mark.django_db
+def test_profile(donations_with_user):
+    client = Client()
+    user = User.objects.first()
+    client.force_login(user)
+    url = reverse('profile')
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert len(response.context['donations']) == len(Donation.objects.filter(user_id=user.id))

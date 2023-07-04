@@ -77,3 +77,9 @@ class InstitutionPaginatorAPI(View):
                    'categories': " ".join([i.name if i == inst.categories.last()
                                            else i.name + ',' for i in inst.categories.all()])} for inst in paginator]
         return JsonResponse(result, safe=False)
+
+
+class Profil(LoginRequiredMixin, View):
+    def get(self, request):
+        donation = Donation.objects.filter(user_id=request.user.id)
+        return render(request, 'donate/profile.html', {'donations': donation})
