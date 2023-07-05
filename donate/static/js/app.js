@@ -145,6 +145,7 @@ function summary() {
         donation_date.appendChild(li_time);
         donation_date.appendChild(li_comment);
     }
+
     function summ_errors(errors) {
         const summ = document.querySelector('#errors');
         summ.innerHTML = '';
@@ -165,14 +166,19 @@ function summary() {
         summ.appendChild(ul);
     }
 
-    last_button.addEventListener('click', function () {
-        let errors = [];
-        summ_categories(errors);
-        summ_foundation(errors);
-        summ_address(errors);
-        summ_date(errors);
-        if(errors.length > 0){summ_errors(errors);}
-    })
+    if (last_button) {
+        last_button.addEventListener('click', function () {
+            let errors = [];
+            summ_categories(errors);
+            summ_foundation(errors);
+            summ_address(errors);
+            summ_date(errors);
+            if (errors.length > 0) {
+                summ_errors(errors);
+            }
+        })
+    }
+
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -498,5 +504,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fundations_contains_categories();
     summary();
+
+    const button = document.querySelector('#save_edit');
+    const password = document.querySelector('#id_password_edit');
+    // const username = document.querySelector('#id_username');
+    console.log(password.value.type)
+    button.addEventListener('click', function (event) {
+
+        if (password.value === '') {
+            event.preventDefault();
+            password.parentElement.classList.remove('hide');
+        }
+        // else{
+        //     event.preventDefault();
+        //     console.log()
+        // }
+    })
 
 });

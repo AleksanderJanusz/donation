@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{% block header %}
+    <header class="header--form-page">
+        {% include "header.html" %}
+        <div class="profile-container">
+            <h1>Edytuj dane</h1>
+            <img src="{% static 'images/decoration.svg' %}" style="width: 100%">
+            <a href="{% url 'change_password' %}" style="font-size: 28px" onmouseover="this.style.color='blue'"
+               onmouseout="this.style.color='black'">Zmień hasło</a>
+            <form method="post">
+                {% csrf_token %}
+                <p>
+                    <label for="id_first_name_edit">Imię:</label>
+                    <input type="text" name="first_name" value="{{ user.first_name }}" maxlength="150"
+                           id="id_first_name_edit">
+                </p>
+                <p>
+                    <label for="id_last_name_edit">Nazwisko:</label>
+                    <input type="text" name="last_name" value="{{ user.last_name }}" maxlength="150"
+                           id="id_last_name_edit">
+                </p>
+                <div style="width: 100%">
+                    <p>
+                        <label for="id_email_edit">Email:</label>
+                        <input type="email" name="username" value="{{ user.username }}" maxlength="254"
+                               id="id_email_edit">
+                    </p>
+                    {{ form.username }}
+                </div>
+                <p class="{% if not error %}hide{% endif %}">
+                    <label for="id_password_edit">Podaj hasło</label>
+                    <input type="password" name="password" id="id_password_edit"
+                           placeholder="{% if error %}Błędne hasło{% endif %}">
+                </p>
+                <div style="display: flex; justify-content: center">
+                    <button class="btn" type="submit" id="save_edit">Zapisz</button>
+                </div>
+            </form>
+        </div>
+    </header>
+{% endblock %}
+

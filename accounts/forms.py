@@ -33,3 +33,21 @@ class LoginForm(forms.Form):
             raise ValidationError('Nie poprawne hasło')
         cleaned_data['user'] = user
         return cleaned_data
+
+
+class EditUserForm(forms.ModelForm):
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data['password1'] != cleaned_data['password2']:
+            raise ValidationError('Hasła nie są identyczne')
+        return cleaned_data
+
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name']
+
+
+class EditUserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name']
