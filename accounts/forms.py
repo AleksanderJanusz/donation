@@ -9,7 +9,7 @@ class AddUserForm(forms.ModelForm):
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Powtórz hasło'}), label='')
     email = forms.CharField(widget=forms.EmailInput(attrs={'placeholder': 'Email'}), label='')
     first_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Imię'}), label='')
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Nazwisko'}), label='')
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Nazwisko'}), label='', required=False)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -29,8 +29,11 @@ class LoginForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         user = authenticate(**cleaned_data)
-        if user is None:
+        user_form = User.objects.get(username=cleaned_data['username'])
+        if not user_form.check_password(cleaned_data['password']):
             raise ValidationError('Nie poprawne hasło')
+        if user is None:
+            raise ValidationError('Musisz aktywować swoje konto')
         cleaned_data['user'] = user
         return cleaned_data
 

@@ -1,6 +1,9 @@
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mass_mail, send_mail
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
@@ -8,6 +11,7 @@ from django.views.generic import UpdateView
 from django.urls import reverse
 
 from accounts.forms import AddUserForm, LoginForm, EditUserForm
+from accounts.models import Token
 
 
 class Login(View):
@@ -42,9 +46,25 @@ class Register(View):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password1'])
             user.username = form.cleaned_data['email']
+            user.is_active = False
             user.save()
+            token = Token.objects.create(user=user)
+            self.send_email(token, request, user.email)
             return redirect('login')
         return render(request, 'accounts/register.html', {'form': form})
+
+    @staticmethod
+    def send_email(token, request, email):
+        current_site = get_current_site(request)
+        activation_url = reverse('activate', kwargs={'token': token.token})
+        activation_link = f'http://{current_site.domain}{activation_url}'
+        subject = 'Rejestracja GiveCare'
+        message = f'Kliknij w link aby aktywować konto: {activation_link}'
+        email_from = 'portfolio.givecare@gmail.com'
+        recipient_list = [email]
+
+        send_mail(subject, message, email_from, recipient_list)
+
 
 
 class Logout(View):
@@ -98,3 +118,15 @@ class ChangePassword(LoginRequiredMixin, View):
         if not error:
             error = 'stare hasło nieprawidłowe'
         return render(request, 'accounts/change_password.html', {'error': error})
+
+
+class Activate(View):
+    def get(self, request, token):
+        try:
+            activate_token = Token.objects.get(token=token)
+        except ObjectDoesNotExist:
+            return HttpResponse('Link jest nie aktywny, skontaktuj się z nami w celu rozwiązania problemu')
+        user = User.objects.get(pk=activate_token.user_id)
+        user.is_active = True
+        user.save()
+        return redirect('login')
