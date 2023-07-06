@@ -66,7 +66,6 @@ class Register(View):
         send_mail(subject, message, email_from, recipient_list)
 
 
-
 class Logout(View):
 
     def get(self, request):
