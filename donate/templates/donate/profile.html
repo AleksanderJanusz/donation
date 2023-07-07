@@ -13,6 +13,7 @@
     </header>
 {% endblock %}
 {% block content %}
+    {% if donations %}
     <section id="help" class="help">
         <h2>Twoja pomoc</h2>
         <div class="help--slides active" data-id="1">
@@ -52,4 +53,5 @@
             </ul>
         </div>
     </section>
+    {% endif %}
 {% endblock %}

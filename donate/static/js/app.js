@@ -17,6 +17,8 @@ function fundations_contains_categories() {
             element.parentElement.parentElement.classList.remove('hide');
             let categories = element.dataset.categories.split(',');
             lst.forEach(num => {
+                console.log(categories);
+                console.log(num);
                 if (!categories.includes(num)) {
                     element.parentElement.parentElement.classList.add('hide');
                 }
@@ -508,7 +510,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const button = document.querySelector('#save_edit');
     const password = document.querySelector('#id_password_edit');
     // const username = document.querySelector('#id_username');
-    console.log(password.value.type)
     button.addEventListener('click', function (event) {
 
         if (password.value === '') {

@@ -84,7 +84,7 @@ class Edit(LoginRequiredMixin, View):
 
     def post(self, request):
         user = authenticate(username=request.user.username, password=request.POST.get('password'))
-        form = EditUserForm(request.POST)
+        form = EditUserForm(request.POST, instance=user)
         error = False
         if form.is_valid():
             error = True

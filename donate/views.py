@@ -60,6 +60,7 @@ class AddDonation(LoginRequiredMixin, View):
             donation.user = request.user
             donation.save()
             donation.categories.set(categories)
+            Donation.objects.filter(pk=donation.pk).update(status_change_date=None)
             return render(request, 'donate/form-confirmation.html')
 
         categories = Category.objects.all()
