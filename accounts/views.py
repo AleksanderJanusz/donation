@@ -10,8 +10,20 @@ from django.views import View
 from django.views.generic import UpdateView
 from django.urls import reverse
 
-from accounts.forms import AddUserForm, LoginForm, EditUserForm
+from accounts.forms import AddUserForm, LoginForm, EditUserForm, RecoverPasswordForm
 from accounts.models import Token
+
+
+def send_token_email(token, request, email, message, url_name):
+    current_site = get_current_site(request)
+    activation_url = reverse(url_name, kwargs={'token': token.token})
+    activation_link = f'http://{current_site.domain}{activation_url}'
+    subject = 'GiveCare'
+    message = f'{message}{activation_link}'
+    email_from = 'portfolio.givecare@gmail.com'
+    recipient_list = [email]
+
+    send_mail(subject, message, email_from, recipient_list)
 
 
 class Login(View):
@@ -49,21 +61,11 @@ class Register(View):
             user.is_active = False
             user.save()
             token = Token.objects.create(user=user)
-            self.send_email(token, request, user.email)
+            message = 'Kliknij w link aby aktywować konto: '
+            url_name = 'activate'
+            send_token_email(token, request, user.email, message, url_name)
             return redirect('login')
         return render(request, 'accounts/register.html', {'form': form})
-
-    @staticmethod
-    def send_email(token, request, email):
-        current_site = get_current_site(request)
-        activation_url = reverse('activate', kwargs={'token': token.token})
-        activation_link = f'http://{current_site.domain}{activation_url}'
-        subject = 'Rejestracja GiveCare'
-        message = f'Kliknij w link aby aktywować konto: {activation_link}'
-        email_from = 'portfolio.givecare@gmail.com'
-        recipient_list = [email]
-
-        send_mail(subject, message, email_from, recipient_list)
 
 
 class Logout(View):
@@ -103,20 +105,14 @@ class ChangePassword(LoginRequiredMixin, View):
 
     def post(self, request):
         user = authenticate(username=request.user.username, password=request.POST.get('password_old'))
-        password1 = request.POST.get('password_new1')
-        password2 = request.POST.get('password_new2')
+        form = RecoverPasswordForm(request.POST)
         error = False
-        if not password1:
-            error = 'hasło nie może być puste'
-        if password1 != password2:
-            error = 'nowe hasła się różnią'
-        if user is not None and not error:
-            user.set_password(password1)
+        if form.is_valid() and user:
+            user.set_password(form.cleaned_data['password1'])
             user.save()
-            return redirect('edit')
-        if not error:
+        if not user:
             error = 'stare hasło nieprawidłowe'
-        return render(request, 'accounts/change_password.html', {'error': error})
+        return render(request, 'accounts/change_password.html', {'error': error, 'form': form})
 
 
 class Activate(View):
@@ -125,7 +121,49 @@ class Activate(View):
             activate_token = Token.objects.get(token=token)
         except ObjectDoesNotExist:
             return HttpResponse('Link jest nie aktywny, skontaktuj się z nami w celu rozwiązania problemu')
-        user = User.objects.get(pk=activate_token.user_id)
-        user.is_active = True
-        user.save()
-        return redirect('login')
+        if activate_token.active:
+            user = User.objects.get(pk=activate_token.user_id)
+            user.is_active = True
+            user.save()
+            activate_token.delete()
+            return redirect('login')
+        return HttpResponse('Link jest nie aktywny, skontaktuj się z nami w celu rozwiązania problemu')
+
+
+class PasswordRecoveryToken(View):
+    def get(self, request):
+        return render(request, 'accounts/recovery/generate_token.html')
+
+    def post(self, request):
+        email = request.POST.get('email')
+        user = User.objects.filter(email=email)
+        if user:
+            token = Token.objects.create(user=user[0])
+            message = 'Kliknij w link aby zmienić hasło: '
+            url_name = 'password_recovery'
+            send_token_email(token, request, email, message, url_name)
+            return HttpResponse('Email z linkiem został wysłany')
+        return render(request, 'accounts/recovery/generate_token.html', {'error': True})
+
+
+class PasswordRecovery(View):
+    def get(self, request, token):
+        form = RecoverPasswordForm()
+        token = Token.objects.filter(token=token)
+        if not token or not token[0].active:
+            return HttpResponse('Link jest nie aktywny, skontaktuj się z nami w celu rozwiązania problemu')
+        return render(request, 'accounts/recovery/change_password_from_token.html', {'form': form})
+
+    def post(self, request, token):
+        form = RecoverPasswordForm(request.POST)
+        token = Token.objects.get(token=token)
+
+        if not token.active:
+            return HttpResponse('Coś poszło nie tak, skontaktuj się z nami w celu rozwiązania problemu')
+        if form.is_valid():
+            user = User.objects.get(pk=token.user_id)
+            user.set_password(form.cleaned_data['password1'])
+            token.delete()
+            user.save()
+            return redirect('login')
+        return render(request, 'accounts/recovery/change_password_from_token.html', {'form': form})

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+{% block header %}
+    <header class="header--form-page">
+        {% include "header.html" %}
+        <div class="profile-container">
+            <h1>Odzyskaj hasło</h1>
+            <img src="{% static 'images/decoration.svg' %}" style="width: 100%">
+            <form method="post">
+                {% csrf_token %}
+                {% if error %}<p style="color: red">Nie ma użytkownika o takim emailu</p>{% endif %}
+                <p>
+                    <label for="id_email_recovery">Email użytkownika</label>
+                    <input type="email" name="email" id="id_email_recovery">
+                </p>
+                <div style="display: flex; justify-content: center">
+                    <button class="btn" type="submit">Wyślij link</button>
+                </div>
+            </form>
+        </div>
+    </header>
+{% endblock %}
+
