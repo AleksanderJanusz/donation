@@ -6,4 +6,5 @@ urlpatterns = [
 
     path('add-donation/', views.AddDonation.as_view(), name='add_donation'),
     path('profile/', views.Profil.as_view(), name='profile'),
+    path('donate/<int:pk>/', views.DonateDetails.as_view(), name='donate_details'),
 ]

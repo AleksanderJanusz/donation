@@ -83,7 +83,8 @@ class InstitutionPaginatorAPI(View):
 
 class Profil(LoginRequiredMixin, View):
     def get(self, request):
-        donation = Donation.objects.filter(user_id=request.user.id).order_by('is_taken', 'pick_up_date')
+        donation = Donation.objects.filter(user_id=request.user.id).order_by('is_taken', 'status_change_date',
+                                                                             'pick_up_date')
         return render(request, 'donate/profile.html', {'donations': donation})
 
     def post(self, request):
@@ -93,3 +94,9 @@ class Profil(LoginRequiredMixin, View):
         donate.save()
         url = reverse('profile') + '#help'
         return redirect(url)
+
+
+class DonateDetails(View):
+    def get(self, request, pk):
+        donate = Donation.objects.get(pk=pk)
+        return render(request, 'donate/donate_details.html', {'donate': donate})

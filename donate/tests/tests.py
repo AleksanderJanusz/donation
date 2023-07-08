@@ -175,3 +175,16 @@ def test_profile(donations_with_user):
 
     assert response.status_code == 200
     assert len(response.context['donations']) == len(Donation.objects.filter(user_id=user.id))
+
+
+@pytest.mark.django_db
+def test_donate_details(donations_with_user):
+    client = Client()
+    user = User.objects.first()
+    client.force_login(user)
+    donation = Donation.objects.first()
+    url = reverse('donate_details', kwargs={'pk': donation.id})
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert response.context['donate'] == donation

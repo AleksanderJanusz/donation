@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+{% block header %}
+    <header class="header--main-page">
+        {% include "header.html" %}
+        <div class="profile-container">
+            <h1>Dotacja na rzecz fundacji</h1>
+            <h1>"{{ donate.institution.name }}"</h1>
+            <a href="#details"><img src="{% static 'images/decoration.svg' %}" style="width: 100%"></a>
+        </div>
+    </header>
+{% endblock %}
+{% block content %}
+    <section id="details" class="help">
+        <div class="profile-container">
+            <p>
+                Darczyńca: {{ donate.user.first_name }} {{ donate.user.last_name }}
+            </p>
+            <p>
+                {% if donate.quantity == 1 %}
+                    Został przekazany worek
+                {% else %}
+                    Zostało przekazane {{ donate.quantity }} worków
+                {% endif %}
+                zawierających:
+                {% for category in donate.categories.all %}
+                    {{ category.name }}{% if category != donate.categories.last %},{% endif %}
+                {% endfor %}
+            </p>
+            <p>Szczegóły dostawy:</p>
+            <ul style="list-style: none">
+                <li>
+                    <p>Adres: {{ donate.address }}</p>
+                </li>
+                <li>
+                    <p>Kod pocztowy: {{ donate.zip_code }}</p>
+                </li>
+                <li>
+                    <p>Miasto: {{ donate.city }}</p>
+                </li>
+                <li>
+                    <p>Numer telefonu: {{ donate.phone_number }}</p>
+                </li>
+            </ul>
+            <p>Odbiór:</p>
+            <ul style="list-style: none">
+                <li>
+                    <p>Wybrana data: {{ donate.pick_up_date }} {{ donate.pick_up_time }}</p>
+                </li>
+                <li>
+                    {% if donate.pick_up_comment %}
+                        <p>Wiadomość dla kuriera: {{ donate.pick_up_comment }}</p>
+                    {% else %}
+                        <p>Brak wiadomości dla kuriera</p>
+                    {% endif %}
+                </li>
+                <li>
+                    <p>Status: {{ donate.is_taken | yesno:'Odebrano, Nie odebrano' }}</p>
+                </li>
+                {% if donate.is_taken %}
+                    <li>
+                        <p>Data potwierdzenia odbioru: {{ donate.status_change_date }}</p>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </section>
+{% endblock %}

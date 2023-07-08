@@ -21,11 +21,14 @@
                 {% for donate in donations %}
                     <li>
                         <div class="col">
-                            <a href="#" class="donations-profile" onmouseover="this.style.color='blue'"
+                            <a href="{% url 'donate_details' pk=donate.id %}" class="donations-profile" onmouseover="this.style.color='blue'"
                                onmouseout="this.style.color='black'">
                                 <div class="title">Fundacja "{{ donate.institution.name }}"</div>
-                                <div class="subtitle">Ilość worków: {{ donate.quantity }},
-                                    status: {{ donate.is_taken | yesno:'zabrany, niezabrany' }}</div>
+                                <div class="subtitle">
+                                    Ilość worków: {{ donate.quantity }},
+                                    status: {{ donate.is_taken | yesno:'zabrany, niezabrany' }}
+                                    {% if donate.is_taken %}{{ donate.status_change_date }}{% endif %}
+                                </div>
                             </a>
                         </div>
 
