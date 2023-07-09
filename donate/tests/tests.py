@@ -4,6 +4,7 @@ from django.test import Client
 from django.urls import reverse
 import math
 
+from accounts.forms import ContactForm
 from donate.forms import DonationForm
 from donate.models import Institution, Donation, Category
 
@@ -188,3 +189,51 @@ def test_donate_details(donations_with_user):
 
     assert response.status_code == 200
     assert response.context['donate'] == donation
+
+
+@pytest.mark.django_db
+def test_contact_logout():
+    client = Client()
+    url = reverse('contact')
+    response = client.get(url)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('login'))
+
+
+@pytest.mark.django_db
+def test_contact_login_get(user):
+    client = Client()
+    user = User.objects.first()
+    client.force_login(user)
+    url = reverse('contact')
+    response = client.get(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_contact_login_post_valid(user):
+    client = Client()
+    user = User.objects.first()
+    client.force_login(user)
+    data = {'name': 'name',
+            'surname': 'surname',
+            'message': 'message'}
+    url = reverse('contact')
+    response = client.post(url, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('index'))
+
+
+@pytest.mark.django_db
+def test_contact_login_post_in_valid(user):
+    client = Client()
+    user = User.objects.first()
+    client.force_login(user)
+    data = {'name': '',
+            'surname': 'surname',
+            'message': 'message'}
+    url = reverse('contact')
+    response = client.post(url, data)
+    assert response.status_code == 200
+    assert isinstance(response.context['form'], ContactForm)
+

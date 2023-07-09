@@ -1,8 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
+
+from accounts.forms import ContactForm
 from donate.forms import DonationForm
 from donate.models import *
 from django.urls import reverse
@@ -100,3 +104,24 @@ class DonateDetails(View):
     def get(self, request, pk):
         donate = Donation.objects.get(pk=pk)
         return render(request, 'donate/donate_details.html', {'donate': donate})
+
+
+class Contact(LoginRequiredMixin, View):
+    def get(self, request):
+        return render(request, 'donate/contact.html')
+
+    def post(self, request):
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            subject = 'Formularz kontaktowy'
+            name = form.cleaned_data['name']
+            surname = form.cleaned_data['surname']
+            message = form.cleaned_data['message']
+            user = request.user
+            message = f'Imię: {name}, Nazwisko: {surname}\nUser:{user}\n{message}'
+            email_from = 'portfolio.givecare@gmail.com'
+            recipient_list = [superuser.email for superuser in User.objects.filter(is_superuser=True)]
+
+            send_mail(subject, message, email_from, recipient_list)
+            return redirect('index')
+        return render(request, 'donate/contact.html', {'form': form})

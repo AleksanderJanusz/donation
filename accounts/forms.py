@@ -69,3 +69,9 @@ class RecoverPasswordForm(forms.ModelForm):
     class Meta:
         model = User
         fields = []
+
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=256)
+    surname = forms.CharField(max_length=256)
+    message = forms.CharField(widget=forms.Textarea, required=True)
