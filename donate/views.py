@@ -108,6 +108,7 @@ class DonateDetails(View):
 
 class Contact(LoginRequiredMixin, View):
     def get(self, request):
+
         return render(request, 'donate/contact.html')
 
     def post(self, request):
