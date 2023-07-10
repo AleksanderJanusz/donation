@@ -17,8 +17,7 @@ function fundations_contains_categories() {
             element.parentElement.parentElement.classList.remove('hide');
             let categories = element.dataset.categories.split(',');
             lst.forEach(num => {
-                console.log(categories);
-                console.log(num);
+
                 if (!categories.includes(num)) {
                     element.parentElement.parentElement.classList.add('hide');
                 }
@@ -181,6 +180,20 @@ function summary() {
         })
     }
 
+}
+
+function provide_password() {
+    const button = document.querySelector('#save_edit');
+    const password = document.querySelector('#id_password_edit');
+    if (button) {
+        button.addEventListener('click', function (event) {
+
+            if (password.value === '') {
+                event.preventDefault();
+                password.parentElement.classList.remove('hide');
+            }
+        })
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -420,6 +433,10 @@ document.addEventListener("DOMContentLoaded", function () {
             this.$prev = form.querySelectorAll(".prev-step");
             this.$step = form.querySelector(".form--steps-counter span");
             this.currentStep = 1;
+            this.$categories = form.querySelectorAll('#step1 .form-group--checkbox input');
+            this.$quantities = form.querySelector('#step2 input');
+            this.$foundation = form.querySelectorAll('#step3 .form-group--checkbox input');
+            this.$adress = form.querySelectorAll('#step4 input');
 
             this.$stepInstructions = form.querySelectorAll(".form--steps-instructions p");
             const $stepForms = form.querySelectorAll("form > div");
@@ -444,8 +461,12 @@ document.addEventListener("DOMContentLoaded", function () {
             this.$next.forEach(btn => {
                 btn.addEventListener("click", e => {
                     e.preventDefault();
-                    this.currentStep++;
-                    this.updateForm();
+                    this.step4();
+                    this.step3();
+                    this.step2();
+                    this.step1();
+                    // this.currentStep++;
+                    // this.updateForm();
                 });
             });
 
@@ -462,6 +483,60 @@ document.addEventListener("DOMContentLoaded", function () {
             this.$form.querySelector("form").addEventListener("submit", e => {
                 this.submit(e)
             });
+        }
+
+        step1() {
+            if (this.currentStep === 1) {
+                let lst = [];
+                this.$categories.forEach(element => {
+                    if (element.checked == true) {
+                        lst.push(element.value);
+                    }
+                })
+                if (lst.length > 0) {
+                    this.currentStep++;
+                    this.updateForm();
+                }
+            }
+        }
+
+        step2() {
+            if (this.currentStep === 2) {
+                if (this.$quantities.value) {
+                    this.currentStep++;
+                    this.updateForm();
+                }
+            }
+        }
+
+        step3() {
+            if (this.currentStep === 3) {
+                let lst = [];
+                this.$foundation.forEach(element => {
+                    if (element.checked == true) {
+                        lst.push(element.value);
+                    }
+                })
+                if (lst.length > 0) {
+                    this.currentStep++;
+                    this.updateForm();
+                }
+            }
+        }
+
+        step4() {
+            if (this.currentStep === 4) {
+                let all_values = true;
+                this.$adress.forEach(element => {
+                    if (!element.value) {
+                        all_values = false;
+                    }
+                })
+                if (all_values) {
+                    this.currentStep++;
+                    this.updateForm();
+                }
+            }
         }
 
         /**
@@ -506,20 +581,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fundations_contains_categories();
     summary();
-
-    const button = document.querySelector('#save_edit');
-    const password = document.querySelector('#id_password_edit');
-    // const username = document.querySelector('#id_username');
-    button.addEventListener('click', function (event) {
-
-        if (password.value === '') {
-            event.preventDefault();
-            password.parentElement.classList.remove('hide');
-        }
-        // else{
-        //     event.preventDefault();
-        //     console.log()
-        // }
-    })
+    provide_password();
 
 });
