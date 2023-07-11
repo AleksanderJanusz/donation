@@ -1852,3 +1852,8 @@ footer .bottom-line--icons a img {
     margin-bottom: 10px;
     font-size: 28px;
 }
+
+.my_error {
+    font-size: 28px;
+    color: darkred;
+}

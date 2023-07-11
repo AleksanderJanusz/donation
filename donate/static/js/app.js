@@ -37,7 +37,7 @@ function fundations_contains_categories() {
 function summary() {
     const last_button = document.querySelector('#last-step');
 
-    function summ_categories(errors) {
+    function summ_categories() {
         const donation_categories = document.querySelector('#donation_categories');
         const quantity = document.querySelector('#id_quantity');
         const cat_check = document.querySelectorAll('#step1 .form-group--checkbox input');
@@ -47,9 +47,6 @@ function summary() {
                 categories.push(element.parentElement.lastElementChild.innerText);
             }
         })
-        if (categories.length < 1) {
-            errors.push('Wybierz kategorie')
-        }
         categories = categories.slice(0, categories.length - 2).map(e => e + ',').concat(categories.slice(categories.length - 2, categories.length)); // add comas to categories
         if (categories.length > 1) {
             categories.splice(categories.length - 1, 0, 'oraz');
@@ -72,34 +69,19 @@ function summary() {
                 foundation.push(element.parentElement.querySelector('.title').innerText);
             }
         })
-        if (foundation.length < 1) {
-            errors.push('Wybierz fundacje')
-        } else {
-            foundation = foundation[0].split(' ').slice(1).join(' ');
-            donation_foundation.innerText = 'Dla fundacji ' + foundation;
-        }
+
+        foundation = foundation[0].split(' ').slice(1).join(' ');
+        donation_foundation.innerText = 'Dla fundacji ' + foundation;
+
 
     }
 
-    function summ_address(errors) {
+    function summ_address() {
         const donation_address = document.querySelector('#donation_address');
         const address = document.querySelector('#id_address');
         const city = document.querySelector('#id_city');
         const zip_code = document.querySelector('#id_zip_code');
         const phone_number = document.querySelector('#id_phone_number');
-
-        if (!address.value) {
-            errors.push('Podaj adres')
-        }
-        if (!city.value) {
-            errors.push('Podaj miasto')
-        }
-        if (!zip_code.value) {
-            errors.push('Podaj kod pocztowy')
-        }
-        if (!phone_number.value) {
-            errors.push('Podaj numer telefonu')
-        }
 
         donation_address.innerHTML = '';
         let li_address = document.createElement('li');
@@ -116,7 +98,7 @@ function summary() {
         donation_address.appendChild(li_phone_number);
     }
 
-    function summ_date(errors) {
+    function summ_date() {
         const donation_date = document.querySelector('#donation_date');
         const pick_up_date = document.querySelector('#id_pick_up_date');
         const pick_up_time = document.querySelector('#id_pick_up_time');
@@ -125,13 +107,6 @@ function summary() {
         let comment = pick_up_comment.value;
         if (!comment) {
             comment = 'Brak uwag'
-        }
-
-        if (!pick_up_date.value) {
-            errors.push('Podaj dzień')
-        }
-        if (!pick_up_time.value) {
-            errors.push('Podaj godzinę')
         }
 
         donation_date.innerHTML = '';
@@ -147,36 +122,13 @@ function summary() {
         donation_date.appendChild(li_comment);
     }
 
-    function summ_errors(errors) {
-        const summ = document.querySelector('#errors');
-        summ.innerHTML = '';
-        let ul = document.createElement('ul');
-        let li_main = document.createElement('li');
-        let li_main_strong = document.createElement('strong');
-        li_main_strong.innerText = 'Zanim przejdziesz dalej: ';
-        li_main.appendChild(li_main_strong);
-        ul.appendChild(li_main);
-
-
-        errors.forEach(e => {
-            let li = document.createElement('li');
-            li.style.color = 'darkred';
-            li.innerText = e;
-            ul.appendChild(li);
-        })
-        summ.appendChild(ul);
-    }
 
     if (last_button) {
         last_button.addEventListener('click', function () {
-            let errors = [];
-            summ_categories(errors);
-            summ_foundation(errors);
-            summ_address(errors);
-            summ_date(errors);
-            if (errors.length > 0) {
-                summ_errors(errors);
-            }
+            summ_categories();
+            summ_foundation();
+            summ_address();
+            summ_date();
         })
     }
 
@@ -437,6 +389,7 @@ document.addEventListener("DOMContentLoaded", function () {
             this.$quantities = form.querySelector('#step2 input');
             this.$foundation = form.querySelectorAll('#step3 .form-group--checkbox input');
             this.$adress = form.querySelectorAll('#step4 input');
+            this.$errors = form.querySelector("#my_errors");
 
             this.$stepInstructions = form.querySelectorAll(".form--steps-instructions p");
             const $stepForms = form.querySelectorAll("form > div");
@@ -494,17 +447,35 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 })
                 if (lst.length > 0) {
-                    this.currentStep++;
-                    this.updateForm();
+                    this.next_step();
+                } else {
+                    let error = 'Zaznacz przynajmniej jedną kategorię';
+                    this.append_error(error);
                 }
+            }
+        }
+
+        next_step() {
+            this.currentStep++;
+            this.updateForm();
+            this.$errors.innerHTML = '';
+        }
+
+        append_error(error) {
+            if (this.$errors.children.length < 1) {
+                let p = document.createElement('p');
+                p.innerText = error;
+                this.$errors.appendChild(p);
             }
         }
 
         step2() {
             if (this.currentStep === 2) {
                 if (this.$quantities.value) {
-                    this.currentStep++;
-                    this.updateForm();
+                    this.next_step();
+                } else {
+                    let error = 'Podaj ilość worków, minimum 1';
+                    this.append_error(error);
                 }
             }
         }
@@ -518,8 +489,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 })
                 if (lst.length > 0) {
-                    this.currentStep++;
-                    this.updateForm();
+                    this.next_step();
+                } else {
+                    let error = 'Wybierz fundację';
+                    this.append_error(error);
                 }
             }
         }
@@ -533,8 +506,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 })
                 if (all_values) {
-                    this.currentStep++;
-                    this.updateForm();
+                    this.next_step();
+                } else {
+                    let error = 'Uzupełnij dane, uwaga dla kuriera jest opcjonalna';
+                    this.append_error(error);
                 }
             }
         }
