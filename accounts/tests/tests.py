@@ -138,3 +138,35 @@ def test_password_recovery_post_in_valid(token):
     assert response.status_code == 200
     assert isinstance(response.context['form'], RecoverPasswordForm)
     assert len(Token.objects.all()) == 1
+
+
+@pytest.mark.django_db
+def test_login_valid(active_user):
+    client = Client()
+    url = reverse('login')
+    data = {'username': 'user',
+            'password': 'password'}
+    response = client.post(url, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('index'))
+
+
+@pytest.mark.django_db
+def test_login_in_valid(active_user):
+    client = Client()
+    url = reverse('login')
+    data = {'username': 'user',
+            'password': 'pass'}
+    response = client.post(url, data)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_login_in_valid_redirect(active_user):
+    client = Client()
+    url = reverse('login')
+    data = {'username': 'wrong user',
+            'password': 'pass'}
+    response = client.post(url, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('register'))

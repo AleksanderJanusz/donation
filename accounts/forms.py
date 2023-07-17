@@ -2,7 +2,7 @@ import re
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 
 def password_valid(password):
@@ -40,7 +40,10 @@ class LoginForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         user = authenticate(**cleaned_data)
-        user_form = User.objects.get(username=cleaned_data['username'])
+        try:
+            user_form = User.objects.get(username=cleaned_data['username'])
+        except ObjectDoesNotExist:
+            raise ValidationError('Niema takiego użytkownika')
         if not user_form.check_password(cleaned_data['password']):
             raise ValidationError('Nie poprawne hasło')
         if user is None:
